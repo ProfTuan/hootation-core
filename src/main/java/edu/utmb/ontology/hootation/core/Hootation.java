@@ -31,35 +31,29 @@ public class Hootation {
         
     }
     
-    public ArrayList<String> get_naturalLangaugeStatements(File ontology_file){
+    public ArrayList<String> get_naturalLangaugeStatements(File ontology_file) throws OWLOntologyCreationException, OWLAxiomConversionException{
         ArrayList<String> nl_statements = new ArrayList<String>();
         
         DLSyntaxObjectRenderer renderer = new DLSyntaxObjectRenderer();
         ToStringRenderer.setRenderer(() -> renderer);
 
         OWLOntologyManager man = OWLManager.createOWLOntologyManager();
-        try {
+       
             ontology = man.loadOntologyFromOntologyDocument(ontology_file);
 
-        } catch (OWLOntologyCreationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+      
         
         
         converter = new OWLAxiomConverter(ontology);
         for (OWLAxiom axiom : ontology.getAxioms()) {
             if (axiom.isLogicalAxiom()) {
-                try {
+                
 
                     String output = converter.convert(axiom);
                     System.out.println(output);
                     nl_statements.add(output);
 
-                } catch (OWLAxiomConversionException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                
 
             }
         }
