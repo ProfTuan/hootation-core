@@ -29,18 +29,23 @@ public class Hootation {
     
     public Hootation(){
         
+        System.out.println("Hootation created");
+        
     }
     
-    public ArrayList<String> get_naturalLangaugeStatements(File ontology_file){
+    public ArrayList<String> get_naturalLangaugeStatements(String ontology_file){
+        
+        System.out.println("hootation:" + ontology_file);
+        
         ArrayList<String> nl_statements = new ArrayList<String>();
         
         DLSyntaxObjectRenderer renderer = new DLSyntaxObjectRenderer();
         ToStringRenderer.setRenderer(() -> renderer);
 
-        OWLOntologyManager man = OWLManager.createOWLOntologyManager();
+        OWLOntologyManager man = OWLManager.createConcurrentOWLOntologyManager();
         try {
-            ontology = man.loadOntologyFromOntologyDocument(ontology_file);
-
+            ontology = man.loadOntologyFromOntologyDocument(new File(ontology_file));
+            
         } catch (OWLOntologyCreationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -69,7 +74,8 @@ public class Hootation {
     }
     
     public static void main(String[] args) {
-        
+        Hootation h = new Hootation();
+        h.get_naturalLangaugeStatements("/Users/mac/NetBeansProjects/nasa_dag_cdss/src/main/resources/rbo.owl");
     }
     
 }

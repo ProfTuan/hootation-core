@@ -246,12 +246,12 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <configuration>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
-                   <!-- <transformers>
+                   <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>edu.uthouston.sbmi.hootation.ui.HootationUI</mainClass>
+                            <mainClass>edu.utmb.ontology.hootation.core.Hootation</mainClass>
                         </transformer>
-                    </transformers> -->
-                    <finalName>hootation-distribution</finalName>
+                    </transformers> 
+                    <finalName>hootation-core</finalName>
                 </configuration>
                 <executions>
                     <execution>
