@@ -254,7 +254,7 @@ public class OWLAxiomConverter implements OWLAxiomVisitor{
 		
 		subProp.setFeature(Feature.FORM, Form.GERUND);
 		superProp.setFeature(Feature.FORM, Form.GERUND);
-		SPhraseSpec sphrase =nlgFactory.createClause(subProp, "is like", superProp); 
+		SPhraseSpec sphrase =nlgFactory.createClause(subProp, "is a type of", superProp); 
 		//System.out.println(sphrase.toString());
 		nl = realiser.realiseSentence(sphrase).toString();
 	}
@@ -777,57 +777,7 @@ public class OWLAxiomConverter implements OWLAxiomVisitor{
 	public static void main(String[] args) throws Exception {
 
 
-                //OLD OWL API 4
-		//ToStringRenderer.getInstance().setRenderer(new DLSyntaxObjectRenderer());
-		
-                DLSyntaxObjectRenderer renderer =  new DLSyntaxObjectRenderer();
-                ToStringRenderer.setRenderer(()->renderer);
                 
-                logger.setLevel(Level.FINEST);
-
-		String ontologyURL = "";
-		//ontologyURL = "http://rpc295.cs.man.ac.uk:8080/repository/download?ontology=http://reliant.teknowledge.com/DAML/Transportation.owl&format=RDF/XML";
-		ontologyURL = "/Users/mac/Downloads/ADMO-alpha.owl";
-		//ontologyURL = "/Users/mfamith/Documents/neon/TestOWLNG/assignment-3.owl";
-		//ontologyURL = "/Users/mfamith/Desktop/geography.owl";
-		//ontologyURL = "/Users/mac/foaf/foafbenefits-minimal.owl";
-		//ontologyURL = "/Users/mfamith/Desktop/ico_merged.owl";
-		//ontologyURL = "/Users/mfamith/Desktop/pizza-rdf.owl";
-		//ontologyURL = "/Users/mfamith/Desktop/VISO-Working-Folder/VISO-HPV-v1.owl";
-		//ontologyURL = "/Users/mfamith/Desktop/pizza.owl";
-		//ontologyURL = "/Users/mfamith/Downloads/vico_merged.owl";
-		//ontologyURL = "/Users/mfamith/Desktop/swo_merged.owl";
-		OWLOntologyManager man = OWLManager.createOWLOntologyManager();
-		OWLOntology ontology = man.loadOntologyFromOntologyDocument(new File(ontologyURL));
-		//OWLOntology ontology = man.loadOntology(IRI.create(ontologyURL));
-
-		OWLAxiomConverter converter = new OWLAxiomConverter(ontology);
-		for (OWLAxiom axiom : ontology.getAxioms()) {
-
-			if(axiom.isLogicalAxiom()){
-				//System.out.println(axiom.getAnnotatedAxiom(null));
-				//|| (axiom.getAxiomType().getName()== "ClassAssertion")
-				/*if((axiom.getAxiomType().getName()=="SymmetricObjectProperty")
-						//|| (axiom.getAxiomType().getName()== "SameIndividuals")
-						){*/
-					
-					String output = converter.convert(axiom);
-					if((output != null)){
-						//if(axiom.getAxiomType().getName() =="InverseObjectProperties"){
-							
-							System.out.println("**Output: " + output +"\n");
-						//}
-						
-					}
-					
-				//}
-
-
-			}
-
-		}
-		
-		System.out.println("Done");
 	}
 
 

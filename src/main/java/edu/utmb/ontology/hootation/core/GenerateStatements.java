@@ -22,8 +22,15 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.search.EntitySearcher;
 
 public class GenerateStatements {
 
@@ -244,6 +251,66 @@ public class GenerateStatements {
         gs.init(new File("/Users/mac/HPVCO_Final_Draft_007.rdf"));
         gs.convertAxiomsToStatements();
 
+    }
+    
+    //instead of displaying the IRI, this function can render the label
+    public String lazyRendering(OWLAxiom axiom, OWLOntology ontology, OWLDataFactory factory) {
+        AtomicReference<String> a_string = new AtomicReference<>();
+        a_string.set(axiom.toString());
+
+        String str_axiom = axiom.toString();
+
+        ontology.classesInSignature().forEach(oc -> {
+
+            String fragment = oc.getIRI().getFragment();
+
+            if (str_axiom.contains(fragment)) {
+
+                Stream<OWLAnnotation> annotations = EntitySearcher.getAnnotations(oc, ontology, factory.getRDFSLabel());
+
+                for (OWLAnnotation oa : annotations.collect(Collectors.toList())) {
+
+                    if (oa.getValue() instanceof OWLLiteral) {
+
+                        a_string.set(a_string.get().replaceAll(fragment, ((OWLLiteral) oa.getValue()).getLiteral()));
+                    }
+
+                }
+
+            }
+
+        });
+
+        ontology.objectPropertiesInSignature().forEach(op -> {
+
+            String fragment = op.getIRI().getFragment();
+
+            if (str_axiom.contains(fragment)) {
+
+                Stream<OWLAnnotation> annotations = EntitySearcher.getAnnotations(op, ontology, factory.getRDFSLabel());
+
+                for (OWLAnnotation oa : annotations.collect(Collectors.toList())) {
+                    a_string.set(a_string.get().replaceAll(fragment, ((OWLLiteral) oa.getValue()).getLiteral()));
+                }
+
+            }
+
+        });
+
+        ontology.dataPropertiesInSignature().forEach(dp -> {
+            String fragment = dp.getIRI().getFragment();
+
+            if (str_axiom.contains(fragment)) {
+                Stream<OWLAnnotation> annotations = EntitySearcher.getAnnotations(dp, ontology, factory.getRDFSLabel());
+
+                for (OWLAnnotation oa : annotations.collect(Collectors.toList())) {
+                    a_string.set(a_string.get().replaceAll(fragment, ((OWLLiteral) oa.getValue()).getLiteral()));
+                }
+            }
+
+        });
+
+        return a_string.get().toString();
     }
 
 }

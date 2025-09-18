@@ -116,7 +116,7 @@ public class LLMFactChecker {
                     .setNPredict(llmconfig.predictNumber());
 
             for (LlamaOutput output : model.generate(inferParams)) {
-                System.out.println(output);
+                //System.out.println(output);
                 results.append(output);
             }
 
@@ -179,8 +179,9 @@ public class LLMFactChecker {
 
                 
                 for(LlamaOutput output: model.generate(inferParams)){
-                    System.out.println(output);
-                    results.append(output);
+                    //System.out.println(output);
+                    String result_outuput = output.text;
+                    results.append(result_outuput);
                     
                 }
                 
