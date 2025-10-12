@@ -162,6 +162,7 @@ public class GenerateStatements {
                 llm.initializeLLMModelFactChecker();
             }
             
+            
 
             for (OWLAxiom axiom : ontology.getAxioms()) {
                 if (axiom.isLogicalAxiom()) {

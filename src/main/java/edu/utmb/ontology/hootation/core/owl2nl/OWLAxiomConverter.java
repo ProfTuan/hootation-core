@@ -546,7 +546,7 @@ public class OWLAxiomConverter implements OWLAxiomVisitor{
 		subProp.setFeature(Feature.FORM, Form.GERUND);
 		superProp.setFeature(Feature.FORM, Form.GERUND);
 		
-		SPhraseSpec sphrase =nlgFactory.createClause(subProp, "is like", superProp); 
+		SPhraseSpec sphrase =nlgFactory.createClause(subProp, "is type of", superProp); 
 		nl = realiser.realiseSentence(sphrase).toString();
 		//System.out.println(realiser.realiseSentence(sphrase).toString());
 		
