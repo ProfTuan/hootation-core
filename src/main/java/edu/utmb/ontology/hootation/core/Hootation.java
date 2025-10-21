@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,6 +22,7 @@ import org.semanticweb.owlapi.io.ToStringRenderer;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -45,6 +47,45 @@ public class Hootation {
         
         System.out.println("Hootation created");
         
+    }
+    
+    public Hootation(OWLOntology ontology, OWLOntologyManager manager){
+        
+        this.ontology = ontology;
+        this.man = manager;
+        
+    }
+    
+    public ArrayList<String> get_naturalLanguageStatements(Set<OWLAxiom> seeded_axioms){
+        ArrayList<String> nl_statements = new ArrayList<String>();
+        
+        DLSyntaxObjectRenderer renderer = new DLSyntaxObjectRenderer();
+        ToStringRenderer.setRenderer(() -> renderer);
+        
+        converter = new OWLAxiomConverter(ontology);
+        
+        for(OWLAxiom axiom : seeded_axioms){
+            
+            if(axiom.isLogicalAxiom()){
+                
+                
+                try {
+                    
+                    String output = converter.convert(axiom);
+                    //System.out.println(output);
+                    nl_statements.add(output);
+                    
+                    
+                } catch (OWLAxiomConversionException ex) {
+                    System.getLogger(Hootation.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                }
+                
+            }
+            
+            
+        }
+        
+        return nl_statements;
     }
     
     public ArrayList<String> get_naturalLangaugeStatements(String ontology_file){
@@ -214,7 +255,7 @@ public class Hootation {
     }
     
     public static void main(String[] args) {
-        //Hootation h = new Hootation();
+        
         
     }
     
