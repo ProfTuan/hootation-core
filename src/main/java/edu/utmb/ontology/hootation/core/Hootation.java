@@ -58,7 +58,16 @@ public class Hootation {
         
     }
     
-    public ArrayList<String> get_naturalLanguageStatements(Set<OWLAxiom> seeded_axioms){
+    public ArrayList<String> get_naturalLanguageStatements(Set<OWLAxiom> seeded_axioms, String ontology_file){
+        
+        man = OWLManager.createConcurrentOWLOntologyManager();
+        
+        try {
+            ontology  = man.loadOntologyFromOntologyDocument(new File(ontology_file));
+        } catch (OWLOntologyCreationException ex) {
+            System.getLogger(Hootation.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        
         ArrayList<String> nl_statements = new ArrayList<String>();
         
         DLSyntaxObjectRenderer renderer = new DLSyntaxObjectRenderer();
