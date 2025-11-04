@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.dlsyntax.renderer.DLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.io.ToStringRenderer;
+import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
@@ -27,6 +28,7 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
 /**
@@ -135,6 +137,111 @@ public class Hootation {
         
     }
     
+    public void exOutputQuickStatements(String ontology_file, String output_file, String filter_ontology){
+        
+        ArrayList<RenderedResults> results = new ArrayList<RenderedResults>();
+        
+        StringBuilder export_content = new StringBuilder();
+        
+        export_content.append("AXIOM TYPE \t AXIOM \t AXIOM(clean) \t NATURAL LANGUAGE TRANSLATION");
+
+        
+        try {
+            
+            man = OWLManager.createOWLOntologyManager();
+            ontology = man.loadOntologyFromOntologyDocument(new File(ontology_file));
+            factory = ontology.getOWLOntologyManager().getOWLDataFactory();
+ 
+        } catch (OWLOntologyCreationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+ 
+        DLSyntaxObjectRenderer renderer = new DLSyntaxObjectRenderer();
+        
+        ToStringRenderer.setRenderer(() -> renderer);
+        
+        converter = new OWLAxiomConverter(ontology);
+        for (OWLAxiom axiom : ontology.getAxioms()) {
+            if (axiom.isLogicalAxiom()) {
+                try {
+
+                    String output = converter.convert(axiom);
+                    
+                    
+                    String new_axiom = lazyRendering(axiom, ontology, factory);
+                    
+                    RenderedResults result = new RenderedResults();
+                    
+                    result.axiom = axiom;
+                    result.axiom_type = axiom.getAxiomType();
+                    result.labaled_axiom = new_axiom;
+                    result.natural_language_expression = output;
+                    
+                    results.add(result);
+                    
+                    //export_content.append("\n" +axiom.getAxiomType().toString() + "\t" + new_axiom + "\t" + output);
+
+                } catch (OWLAxiomConversionException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+        }
+        
+        
+        try {
+            //FILTER OUT
+            
+            OWLOntologyManager manager = OWLManager.createConcurrentOWLOntologyManager();
+            
+            OWLOntology o = manager.loadOntologyFromOntologyDocument(new File(filter_ontology));
+            
+            
+            ArrayList<RenderedResults> filtered_results = new ArrayList<RenderedResults>();
+            
+            for(RenderedResults rr : results){
+                
+                boolean anyMatch = o.axioms().anyMatch(ax-> ax.equals(rr.axiom));
+                if(anyMatch){
+                    filtered_results.add(rr);
+                }
+                
+            }
+            
+            System.out.println(filtered_results.size());
+            System.out.println(results.size());
+            
+            results = filtered_results;
+            
+            
+        } catch (OWLOntologyCreationException ex) {
+            System.getLogger(Hootation.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        
+        //StringBuilder sb = new StringBuilder();
+        for(RenderedResults rr : results){
+            
+            export_content.append("\n" + rr.axiom_type.toString() + "\t" + rr.axiom + "\t" + rr.labaled_axiom + "\t" +rr.natural_language_expression );
+            
+        }
+        
+        
+        Path path_file = Paths.get(output_file );
+        byte[] string_bytes = export_content.toString().getBytes();
+        try {
+            Files.write(path_file, string_bytes);
+        } catch (IOException ex) {
+            System.getLogger(Hootation.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        
+        
+        
+        
+    }
+    
     public void outputQuickStatements(String ontology_file, String output_file){
         
         StringBuilder export_content = new StringBuilder();
@@ -147,10 +254,7 @@ public class Hootation {
             man = OWLManager.createOWLOntologyManager();
             ontology = man.loadOntologyFromOntologyDocument(new File(ontology_file));
             factory = ontology.getOWLOntologyManager().getOWLDataFactory();
-            
-       
-             
-            
+ 
         } catch (OWLOntologyCreationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -191,8 +295,27 @@ public class Hootation {
         
     }
     
+    public String lazyRendering(OWLAxiom axiom){
+        OWLOntologyManager m = OWLManager.createOWLOntologyManager();
+        OWLOntology o = null;
+        OWLDataFactory f = null;
+        
+        try {
+            //OWLOntology ontology = OWLManager
+            o = m.loadOntologyFromOntologyDocument(new File("/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick.owl"));
+            f = o.getOWLOntologyManager().getOWLDataFactory();
+            
+        } catch (OWLOntologyCreationException ex) {
+            System.getLogger(Hootation.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        
+        return lazyRendering(axiom, o, f);
+    }
+    
     //function to display the axiom's IRI (if there is) to labels
     public String lazyRendering(OWLAxiom axiom, OWLOntology ontology, OWLDataFactory factory){
+        
+        
         AtomicReference<String> a_string = new AtomicReference<>();
         a_string.set(axiom.toString());
         
@@ -256,10 +379,27 @@ public class Hootation {
     
     public static void main(String[] args) {
         
+        Hootation h = new Hootation();
+        //h.outputQuickStatements("/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick.owl", "vick-complete.txt");
         
+        h.exOutputQuickStatements("/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick.owl", "vick-complete.txt", "/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick-base.owl");
     }
     
-  
+    class RenderedResults{
+        public OWLAxiom axiom;
+        public String labaled_axiom;
+        public AxiomType axiom_type;
+        public String natural_language_expression;
+        
+        public RenderedResults(){
+            
+        }
+        
+        
+        
+        
+        
+    }
 
     
     
