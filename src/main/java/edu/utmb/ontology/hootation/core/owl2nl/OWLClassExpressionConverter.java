@@ -1350,17 +1350,7 @@ OWLIndividualVisitorEx<NLGElement>, OWLDataRangeVisitorEx<NLGElement>, OWLProper
                     
                 });
                 
-		/* OLD OWL API 4
-		for(OWLAnnotation a : EntitySearcher.getAnnotations(entity, this.sourceOntology, df.getRDFSLabel())) {
-			OWLAnnotationValue val = a.getValue(); 
-			if(val instanceof OWLLiteral) {
-				label = ((OWLLiteral) val).getLiteral();
-				//System.out.println(entity + " labelled " + ((OWLLiteral) val).getLiteral() + " with " + entity.toStringID());   
-			}
-		}
-		*/
-		//System.out.println("Entity: " + entity.toStringID());
-		//System.out.println("Label: " + label);
+		
                if(sb.isEmpty()){
                    label = iriConverter.convert(entity.toStringID());
                }
@@ -1368,13 +1358,7 @@ OWLIndividualVisitorEx<NLGElement>, OWLDataRangeVisitorEx<NLGElement>, OWLProper
                    label = sb.toString();
                }
                
-		//REMOVED OLD OWL API 4
-                /*
-		if(EntitySearcher.getAnnotations(entity, this.sourceOntology, df.getRDFSLabel()).isEmpty()){
-			//System.out.println("zero getEntityLabel");
-			return iriConverter.convert(entity.toStringID());
-		}
-		*/
+
                 
 		if(label.trim() == "") label = entity.toStringID();
 		

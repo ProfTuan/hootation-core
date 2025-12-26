@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -20,7 +22,9 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.dlsyntax.renderer.DLSyntaxObjectRenderer;
 import org.semanticweb.owlapi.io.ToStringRenderer;
 import org.semanticweb.owlapi.model.AxiomType;
+import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLEntity;
@@ -28,7 +32,6 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
-import org.semanticweb.owlapi.model.parameters.Imports;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
 /**
@@ -97,6 +100,165 @@ public class Hootation {
         }
         
         return nl_statements;
+    }
+    
+    public StringBuilder getAllDefinitionsAndComments(){
+        
+        StringBuilder definitions = new StringBuilder();
+        
+        OWLAnnotationProperty owl_definition = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0000115"));
+        
+        if(ontology == null || man == null){
+            return null;
+        }
+        
+        
+        // GET DEFINTIONS AND COMMENTS FROM CLASSES
+        ontology.classesInSignature().forEach( oc->{
+            
+            String entity_label = getEntityLabel(oc);
+            
+            Stream<OWLAnnotation> definition_annotations = EntitySearcher.getAnnotations(oc, ontology, owl_definition);
+            
+            for (OWLAnnotation oa : definition_annotations.collect(Collectors.toList())) {
+
+                if (oa.getValue() instanceof OWLLiteral) {
+                    Optional<OWLLiteral> lv = oa.literalValue();
+                
+                    String v = lv.get().getLiteral();
+                    
+                    definitions.append(entity_label + ", ");
+                    definitions.append( v + "\n");
+                   
+                }
+                
+            }
+            
+            Stream<OWLAnnotation> comment_annotations = EntitySearcher.getAnnotations(oc, ontology, factory.getRDFSComment());
+
+            for(OWLAnnotation oa : comment_annotations.collect(Collectors.toList())){
+                
+                if(oa.getValue() instanceof OWLLiteral){
+                    
+                    
+                    Optional<OWLLiteral> lv = oa.literalValue();
+                    
+                    String v = lv.get().getLiteral();
+                    definitions.append(entity_label + ", N.B. ");
+                    definitions.append(v + "\n");
+                    
+                }
+                
+                
+            }
+            
+        });
+        
+        //GET DEF AND COMMENTS FROM DATA PROPERTIES
+        ontology.dataPropertiesInSignature().forEach(dp->{
+        
+            String entity_label = getEntityLabel(dp);
+            
+            Stream<OWLAnnotation> definition_annotations = EntitySearcher.getAnnotations(dp, ontology, owl_definition);
+            
+            for (OWLAnnotation oa : definition_annotations.collect(Collectors.toList())) {
+
+                if (oa.getValue() instanceof OWLLiteral) {
+                    Optional<OWLLiteral> lv = oa.literalValue();
+                
+                    String v = lv.get().getLiteral();
+                    
+                    definitions.append(entity_label + ", ");
+                    definitions.append( v + "\n");
+                   
+                }
+                
+            }
+            
+            Stream<OWLAnnotation> comment_annotations = EntitySearcher.getAnnotations(dp, ontology, factory.getRDFSComment());
+
+            for(OWLAnnotation oa : comment_annotations.collect(Collectors.toList())){
+                
+                if(oa.getValue() instanceof OWLLiteral){
+                    
+                    
+                    Optional<OWLLiteral> lv = oa.literalValue();
+                    
+                    String v = lv.get().getLiteral();
+                    definitions.append(entity_label + ", N.B. ");
+                    definitions.append(v + "\n");
+                    
+                }
+                
+                
+            }
+            
+            
+        });
+        
+        
+        ontology.objectPropertiesInSignature().forEach(op -> {
+            String entity_label = getEntityLabel(op);
+
+            Stream<OWLAnnotation> definition_annotations = EntitySearcher.getAnnotations(op, ontology, owl_definition);
+
+            for (OWLAnnotation oa : definition_annotations.collect(Collectors.toList())) {
+
+                if (oa.getValue() instanceof OWLLiteral) {
+                    Optional<OWLLiteral> lv = oa.literalValue();
+
+                    String v = lv.get().getLiteral();
+
+                    definitions.append(entity_label + ", ");
+                    definitions.append(v + "\n");
+
+                }
+
+            }
+
+            Stream<OWLAnnotation> comment_annotations = EntitySearcher.getAnnotations(op, ontology, factory.getRDFSComment());
+
+            for (OWLAnnotation oa : comment_annotations.collect(Collectors.toList())) {
+
+                if (oa.getValue() instanceof OWLLiteral) {
+
+                    Optional<OWLLiteral> lv = oa.literalValue();
+
+                    String v = lv.get().getLiteral();
+                    definitions.append(entity_label + ", N.B. ");
+                    definitions.append(v + "\n");
+
+                }
+
+            }
+
+        });
+        
+        return definitions;
+        
+    }
+    
+    private String getEntityLabel(OWLEntity e){
+        List<OWLAnnotation> labels = EntitySearcher.getAnnotations(e, ontology, factory.getRDFSLabel()).collect(Collectors.toList());
+        
+        String result = "";
+        if(!labels.isEmpty()){
+            
+            for(OWLAnnotation oa : labels){
+                
+                if(oa.getValue() instanceof OWLLiteral){
+                    
+                    
+                    Optional<OWLLiteral> value = oa.literalValue();
+                    
+                    result = value.get().getLiteral();
+                    
+                }
+                
+            }
+            
+        }
+        return result;
     }
     
     public ArrayList<String> get_naturalLangaugeStatements(String ontology_file){
@@ -341,7 +503,7 @@ public class Hootation {
                 for(OWLAnnotation oa : annotations.collect(Collectors.toList())){
                     
                     if(oa.getValue() instanceof OWLLiteral){
-                        
+                         
                          a_string.set( a_string.get().replaceAll(fragment, ((OWLLiteral)oa.getValue()).getLiteral()) );
                     }
                     
@@ -391,7 +553,7 @@ public class Hootation {
         Hootation h = new Hootation();
         //h.outputQuickStatements("/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick.owl", "vick-complete.txt");
         
-        h.exOutputQuickStatements("/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick.owl", "vick-complete.txt", "/Users/mac/Documents/GitHub/VICK-KnowledgeGraph/vick-base.owl");
+        h.exOutputQuickStatements("[path]", "output-file.txt", "[path of filtered ontology]");
     }
     
     class RenderedResults{
