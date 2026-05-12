@@ -29,8 +29,8 @@ Hootation is released under the GPLv3 (or later) license. See license for more d
 	author = {Amith, Muhammad and Hao, Xubing and Manuel, Warren and Li, Manqi and Rao, Shun and Roberts, Kirk and Xu, Hua and Gong, Yang and Manion, Frank and Tao, Cui and Cui, Licong},
 	month = feb,
 	year = {2026},
-	pages = {128--132},
-	file = {PDF:/Users/mac/Zotero/storage/JAS3AXCC/Amith et al. - 2026 - Hootation A GUI and API library for ontology validation and verbalization.pdf:application/pdf},
+	pages = {128--132}
+	
 }
 
 ```
